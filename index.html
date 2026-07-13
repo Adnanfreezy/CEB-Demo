@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CEBCare - Ceylon Electricity Board</title>
+
+  <!-- Google Fonts: Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --yellow: #e5c41a;
+      --pink: #eb407a;
+      --blue: #1e88e5;
+      --text-main: #4a2a2a;
+      --text-muted: #8c7e7e;
+      --text-dark: #2d1d1d;
+      --card-bg: #ffffff;
+      --input-border: #e6dcdc;
+      --input-focus: #1e88e5;
+      --radius: 12px;
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+      --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      color: var(--text-main);
+      background-color: #f6ebeb;
+      background-image: url('pattern-2.svg');
+      background-repeat: no-repeat;
+      background-position: bottom left;
+      background-size: 100% auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top yellow bar */
+    .topbar {
+      background: var(--yellow);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: inset 0 -1px 0 rgba(0,0,0,0.06), 0 2px 10px rgba(0,0,0,0.05);
+    }
+    
+    .topbar .brand img {
+      height: 38px;
+      width: auto;
+      display: block;
+    }
+
+    .topbar .cta {
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-register-top {
+      background: var(--blue);
+      color: #ffffff;
+      border: 0;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+    }
+
+    .btn-register-top:hover {
+      background: #1565c0;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-register-top:active {
+      transform: scale(0.98);
+    }
+
+    /* Main layout container */
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 50px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 40px auto;
+      align-items: center;
+      padding: 0 24px;
+      flex-grow: 1;
+    }
+
+    /* Left panel: text and logo sitting directly on background */
+    .left-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px 0;
+    }
+
+    .logo-row {
+      margin-bottom: 24px;
+    }
+
+    .logo-row img {
+      height: 65px;
+      width: auto;
+      display: block;
+    }
+
+    h2.title {
+      margin: 12px 0 18px;
+      color: #921c1c; /* Deep burgundy/red-brown */
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      text-transform: uppercase;
+    }
+
+    p.lead {
+      margin: 0 0 24px;
+      color: #8c5252; /* Muted reddish-brown */
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    a.learn {
+      display: inline-block;
+      color: var(--pink);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+
+    a.learn:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    /* Social icons */
+    .social-section {
+      margin-top: 32px;
+    }
+
+    .social-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .social-icons-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .social-icon:hover {
+      background: #1565c0;
+      transform: translateY(-2px);
+    }
+
+    .social-icon svg {
+      width: 18px;
+      height: 18px;
+      fill: currentColor;
+    }
+
+    /* Right login card */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      width: 100%;
+      align-self: center;
+      border: 1px solid rgba(230, 220, 220, 0.5);
+    }
+
+    .form-row {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    input[type="text"], 
+    input[type="password"] {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--input-border);
+      font-size: 14px;
+      font-family: var(--font-family);
+      outline: none;
+      color: var(--text-dark);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]::placeholder, 
+    input[type="password"]::placeholder {
+      color: #b0a4a4;
+    }
+
+    input[type="text"]:focus, 
+    input[type="password"]:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.15);
+    }
+
+    .helper-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 5px;
+      display: block;
+    }
+
+    /* Password Input Wrap with Eye Toggle Icon */
+    .password-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+
+    .password-wrap input {
+      padding-right: 42px;
+    }
+
+    .pw-toggle {
+      position: absolute;
+      right: 12px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: color 0.2s;
+    }
+
+    .pw-toggle:hover {
+      color: var(--text-dark);
+    }
+
+    .pw-toggle svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+    }
+
+    /* Remember me & Action links row */
+    .row-flex {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 500;
+      user-select: none;
+    }
+
+    .checkbox-label input {
+      margin: 0;
+      cursor: pointer;
+      width: 15px;
+      height: 15px;
+      accent-color: var(--blue);
+    }
+
+    /* Buttons action row */
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-submit {
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 6px;
+      border: 0;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      color: #ffffff;
+      font-family: var(--font-family);
+      transition: background-color 0.2s, transform 0.1s, opacity 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-pink {
+      background: var(--pink);
+    }
+
+    .btn-pink:hover:not(:disabled) {
+      background: #d82c66;
+    }
+
+    .btn-blue {
+      background: var(--blue);
+    }
+
+    .btn-blue:hover:not(:disabled) {
+      background: #1565c0;
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    /* Forgot Password wrap */
+    .forgot-wrap {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .forgot-link {
+      font-size: 12px;
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .forgot-link:hover {
+      text-decoration: underline;
+    }
+
+    /* Local status notifications inside the card */
+    .alert-box {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      font-weight: 500;
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .alert-box.success {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+
+    .alert-box.error {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .alert-box.hide {
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Footer styles */
+    .footer {
+      margin-top: auto;
+      padding: 30px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .footer-copyright {
+      font-weight: 500;
+    }
+
+    .footer-powered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .footer-logo {
+      height: 38px;
+      width: auto;
+      margin-top: 4px;
+    }
+
+    /* Responsive styling */
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+        margin: 20px auto;
+      }
+      
+      .left-panel {
+        text-align: center;
+        align-items: center;
+      }
+
+      .logo-row img {
+        margin: 0 auto;
+      }
+
+      .social-icons-row {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Yellow Header Bar -->
+  <header class="topbar" role="banner">
+    <div class="brand">
+      <img src="cebcarelogo2.png" alt="CEBCare Logo" />
+    </div>
+    <div class="cta">
+      <button class="btn-register-top" onclick="focusRegister()">Register account</button>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main class="container" role="main">
+    
+    <!-- Left Section: Direct text on layout -->
+    <section class="left-panel" aria-label="CEB Board Info">
+      <div class="logo-row">
+        <img src="cebfulllogo.png" alt="Ceylon Electricity Board Full Logo" />
+      </div>
+
+      <h2 class="title">Enrich Life Through Power<br/>Illuminating the Motherland</h2>
+
+      <p class="lead">
+        Ceylon Electricity Board is a body corporate established on the 1st November 1969 under the Act of Parliament No. 17 of 1969. It is empowered to generate electrical energy, transmit the same and distribute it to reach all categories of consumers and to collect the revenue.
+      </p>
+
+      <a class="learn" href="#" onclick="event.preventDefault(); alert('Learn more clicked! You can explore board activities at our official website.');">Learn more &gt;&gt;</a>
+
+      <!-- Social Media Icons Row -->
+      <div class="social-section">
+        <div class="social-label">Find us on social media</div>
+        <div class="social-icons-row">
+          <a href="#" class="social-icon" aria-label="Facebook" onclick="event.preventDefault();">
+            <svg viewBox="0 0 24 24"><path d="M14 13.5h2.5l1-3H14V8.6c0-.8.2-1.1 1-1.1h1.5V4.6c-.3-.1-1.2-.2-2.3-.2-2.3 0-3.7 1.3-3.7 3.9v2.2H8v3h2.5v7h3.5v-7z"/></svg>
+          </a>
+          <a href="#" class="social-icon" aria-label="Twitter" onclick="event.preventDefault();">
+            <svg viewBox="0 0 24 24"><path d="M18.2 4h2.6l-5.7 6.5L21.8 20h-5.2l-4.1-5.4L7.8 20H5.2l6.1-7L4.2 4h5.3l3.7 4.9L18.2 4zm-.9 14.4h1.4L9.1 5.5H7.6l9.7 12.9z"/></svg>
+          </a>
+          <a href="#" class="social-icon" aria-label="LinkedIn" onclick="event.preventDefault();">
+            <svg viewBox="0 0 24 24"><path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Section: Login Card -->
+    <aside class="card" aria-label="Login Form">
+      
+      <!-- Custom Toast notification -->
+      <div id="alertBox" class="alert-box hide"></div>
+
+      <!-- Username field -->
+      <div class="form-row">
+        <label for="username">Username</label>
+        <input id="username" type="text" placeholder="Username for verification" autocomplete="username">
+        <small class="helper-text">The Username you registered with</small>
+      </div>
+
+      <!-- Password field -->
+      <div class="form-row">
+        <label for="password">Password</label>
+        <div class="password-wrap">
+          <input id="password" type="password" placeholder="Your password" autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="togglePw" aria-label="toggle password visibility">
+            <!-- Open Eye Icon -->
+            <svg id="eyeOpen" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+            <!-- Closed Eye Icon (hidden initially) -->
+            <svg id="eyeClosed" style="display:none;" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.82l2.92 2.92c1.51-1.28 2.66-3.03 3.44-4.74-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z"/></svg>
+          </button>
+        </div>
+        <small class="helper-text">The password you specified during registration</small>
+      </div>
+
+      <!-- Remember me Checkbox -->
+      <div class="row-flex">
+        <label class="checkbox-label">
+          <input id="remember" type="checkbox"> Remember me for the next 30 days
+        </label>
+      </div>
+
+      <!-- Buttons -->
+      <div class="actions">
+        <button class="btn-submit btn-pink" id="secureLogin">Secure login</button>
+        <button class="btn-submit btn-blue" id="register">Register</button>
+      </div>
+
+      <!-- Forgot Password link -->
+      <div class="forgot-wrap">
+        <a href="#" class="forgot-link" onclick="event.preventDefault(); alert('Please contact Ceylon Electricity Board support to reset your password.');">Forgot your password?</a>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Bottom Page Footer -->
+  <footer class="footer">
+    <div class="footer-copyright">2024 &copy; Ceylon Electricity Board</div>
+    <div class="footer-powered">
+      <span>Powered By</span>
+      <img src="pweredbyca.png" alt="CEB Assist Logo" class="footer-logo">
+    </div>
+  </footer>
+
+  <script>
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    
+    // Toggle password visibility logic
+    const toggleBtn = document.getElementById('togglePw');
+    const eyeOpen = document.getElementById('eyeOpen');
+    const eyeClosed = document.getElementById('eyeClosed');
+
+    toggleBtn.addEventListener('click', () => {
+      if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        eyeOpen.style.display = 'none';
+        eyeClosed.style.display = 'block';
+      } else {
+        passwordInput.type = 'password';
+        eyeOpen.style.display = 'block';
+        eyeClosed.style.display = 'none';
+      }
+    });
+
+    // Scroll to Card and Focus Username (used for top banner Register CTA)
+    function focusRegister() {
+      usernameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      usernameInput.focus();
+    }
+
+    // Custom Alert Box utility
+    const alertBox = document.getElementById('alertBox');
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = 'alert-box ' + type;
+      alertBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function hideAlert() {
+      alertBox.className = 'alert-box hide';
+    }
+
+    // Set buttons state
+    const secureLoginBtn = document.getElementById('secureLogin');
+    const registerBtn = document.getElementById('register');
+    function setSubmitting(isSubmitting) {
+      if (isSubmitting) {
+        secureLoginBtn.disabled = true;
+        registerBtn.disabled = true;
+      } else {
+        secureLoginBtn.disabled = false;
+        registerBtn.disabled = false;
+      }
+    }
+
+    // POST helper
+    async function postData(url = '', data = {}) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+      return response.json();
+    }
+
+    // Login Handler
+    secureLoginBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      hideAlert();
+      
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!username) {
+        showAlert('Please enter your username.', 'error');
+        usernameInput.focus();
+        return;
+      }
+      if (!password) {
+        showAlert('Please enter your password.', 'error');
+        passwordInput.focus();
+        return;
+      }
+
+      setSubmitting(true);
+      const originalText = secureLoginBtn.textContent;
+      secureLoginBtn.textContent = 'Logging in...';
+
+      try {
+        const res = await postData('/api/login', { username, password });
+        if (res.success) {
+          showAlert(res.message, 'success');
+          // Optional: Store session info if remember is checked
+          if (document.getElementById('remember').checked) {
+            localStorage.setItem('ceb_username', username);
+          } else {
+            localStorage.removeItem('ceb_username');
+          }
+        } else {
+          showAlert(res.message || 'Login failed.', 'error');
+        }
+      } catch (err) {
+        showAlert('Network error: Could not connect to the backend.', 'error');
+      } finally {
+        secureLoginBtn.textContent = originalText;
+        setSubmitting(false);
+      }
+    });
+
+    // Register Handler
+    registerBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      hideAlert();
+
+      const username = usernameInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!username) {
+        showAlert('Please enter a username for registration.', 'error');
+        usernameInput.focus();
+        return;
+      }
+      if (username.length < 3) {
+        showAlert('Username must be at least 3 characters long.', 'error');
+        usernameInput.focus();
+        return;
+      }
+      if (!password) {
+        showAlert('Please enter a password for registration.', 'error');
+        passwordInput.focus();
+        return;
+      }
+      if (password.length < 4) {
+        showAlert('Password must be at least 4 characters long.', 'error');
+        passwordInput.focus();
+        return;
+      }
+
+      setSubmitting(true);
+      const originalText = registerBtn.textContent;
+      registerBtn.textContent = 'Registering...';
+
+      try {
+        const res = await postData('/api/register', { username, password });
+        if (res.success) {
+          showAlert(res.message, 'success');
+          passwordInput.value = ''; // clear password field
+          passwordInput.focus();
+        } else {
+          showAlert(res.message || 'Registration failed.', 'error');
+        }
+      } catch (err) {
+        showAlert('Network error: Could not connect to the backend.', 'error');
+      } finally {
+        registerBtn.textContent = originalText;
+        setSubmitting(false);
+      }
+    });
+
+    // Load saved username if present
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('ceb_username');
+      if (savedUser) {
+        usernameInput.value = savedUser;
+        document.getElementById('remember').checked = true;
+      }
+    });
+  </script>
+</body>
+</html>
