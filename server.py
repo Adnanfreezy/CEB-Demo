@@ -1,11 +1,9 @@
-import http.server
-import socketserver
-import json
+from flask import Flask, request, jsonify, send_from_directory
+import os
 import sqlite3
 import hashlib
-import os
 
-PORT = 8000
+app = Flask(__name__, static_folder='.', static_url_path='')
 DB_FILE = 'users.db'
 
 # Initialize the database
@@ -33,116 +31,95 @@ def init_db():
     conn.close()
     print("Database initialized successfully.")
 
-class CEBHandler(http.server.SimpleHTTPRequestHandler):
-    def do_GET(self):
-        # Map root path to index.html
-        if self.path == '/' or self.path == '':
-            self.path = '/index.html'
-        return super().do_GET()
+# Serve frontend index.html on root path
+@app.route('/')
+def home():
+    return send_from_directory('.', 'index.html')
 
-    def do_POST(self):
-        if self.path == '/api/register':
-            self.handle_register()
-        elif self.path == '/api/login':
-            self.handle_login()
-        else:
-            self.send_json(404, {"success": False, "message": "API endpoint not found."})
+# Register endpoint
+@app.route('/api/register', methods=['POST'])
+def handle_register():
+    try:
+        req = request.get_json()
+        if not req:
+            return jsonify({"success": False, "message": "Invalid JSON format."}), 400
+            
+        username = req.get('username', '').strip()
+        password = req.get('password', '')
+        
+        if not username or not password:
+            return jsonify({"success": False, "message": "Username and password are required."}), 400
+        
+        if len(username) < 3:
+            return jsonify({"success": False, "message": "Username must be at least 3 characters long."}), 400
+        
+        if len(password) < 4:
+            return jsonify({"success": False, "message": "Password must be at least 4 characters long."}), 400
 
-    def send_json(self, status_code, data):
-        self.send_response(status_code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(json.dumps(data).encode('utf-8'))
-
-    def handle_register(self):
+        hashed_pw = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
         try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            req = json.loads(post_data.decode('utf-8'))
-            
-            username = req.get('username', '').strip()
-            password = req.get('password', '')
-            
-            if not username or not password:
-                self.send_json(400, {"success": False, "message": "Username and password are required."})
-                return
-            
-            if len(username) < 3:
-                self.send_json(400, {"success": False, "message": "Username must be at least 3 characters long."})
-                return
-            
-            if len(password) < 4:
-                self.send_json(400, {"success": False, "message": "Password must be at least 4 characters long."})
-                return
-
-            hashed_pw = hashlib.sha256(password.encode('utf-8')).hexdigest()
-            
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            try:
-                cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_pw))
-                conn.commit()
-                self.send_json(201, {"success": True, "message": "Registration successful! You can now log in."})
-            except sqlite3.IntegrityError:
-                self.send_json(400, {"success": False, "message": "Username already exists."})
-            finally:
-                conn.close()
-                
-        except json.JSONDecodeError:
-            self.send_json(400, {"success": False, "message": "Invalid JSON format."})
-        except Exception as e:
-            self.send_json(500, {"success": False, "message": f"Server error: {str(e)}"})
-
-    def handle_login(self):
-        try:
-            content_length = int(self.headers['Content-Length'])
-            post_data = self.rfile.read(content_length)
-            req = json.loads(post_data.decode('utf-8'))
-            
-            username = req.get('username', '').strip()
-            password = req.get('password', '')
-            
-            if not username or not password:
-                self.send_json(400, {"success": False, "message": "Username and password are required."})
-                return
-
-            hashed_pw = hashlib.sha256(password.encode('utf-8')).hexdigest()
-            
-            conn = sqlite3.connect(DB_FILE)
-            cursor = conn.cursor()
-            cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
-            row = cursor.fetchone()
-            
-            state = 'correct' if (row and row[0] == hashed_pw) else 'wrong'
-            
-            # Log the login attempt in the credential_state table
-            cursor.execute(
-                "INSERT INTO credential_state (username, password, state) VALUES (?, ?, ?)",
-                (username, password, state)
-            )
+            cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, hashed_pw))
             conn.commit()
+            return jsonify({"success": True, "message": "Registration successful! You can now log in."}), 201
+        except sqlite3.IntegrityError:
+            return jsonify({"success": False, "message": "Username already exists."}), 400
+        finally:
             conn.close()
             
-            if state == 'correct':
-                self.send_json(200, {"success": True, "message": "Login successful! Welcome to CEBCare."})
-            else:
-                self.send_json(401, {"success": False, "message": "Invalid username or password."})
-                
-        except json.JSONDecodeError:
-            self.send_json(400, {"success": False, "message": "Invalid JSON format."})
-        except Exception as e:
-            self.send_json(500, {"success": False, "message": f"Server error: {str(e)}"})
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
+# Login endpoint
+@app.route('/api/login', methods=['POST'])
+def handle_login():
+    try:
+        req = request.get_json()
+        if not req:
+            return jsonify({"success": False, "message": "Invalid JSON format."}), 400
+            
+        username = req.get('username', '').strip()
+        password = req.get('password', '')
+        
+        if not username or not password:
+            return jsonify({"success": False, "message": "Username and password are required."}), 400
+
+        hashed_pw = hashlib.sha256(password.encode('utf-8')).hexdigest()
+        
+        conn = sqlite3.connect(DB_FILE)
+        cursor = conn.cursor()
+        cursor.execute("SELECT password FROM users WHERE username = ?", (username,))
+        row = cursor.fetchone()
+        
+        state = 'correct' if (row and row[0] == hashed_pw) else 'wrong'
+        
+        # Log the login attempt in the credential_state table
+        cursor.execute(
+            "INSERT INTO credential_state (username, password, state) VALUES (?, ?, ?)",
+            (username, password, state)
+        )
+        conn.commit()
+        conn.close()
+        
+        if state == 'correct':
+            return jsonify({"success": True, "message": "Login successful! Welcome to CEBCare."}), 200
+        else:
+            return jsonify({"success": False, "message": "Invalid username or password."}), 401
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Server error: {str(e)}"}), 500
+
+# Add CORS headers so GitHub Pages frontend can communicate with the backend
+@app.after_request
+def add_cors_headers(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 if __name__ == '__main__':
     init_db()
-    
-    # Allow address reuse to prevent "Address already in use" errors during quick restarts
-    socketserver.TCPServer.allow_reuse_address = True
-    
-    with socketserver.TCPServer(("", PORT), CEBHandler) as httpd:
-        print(f"CEBCare Backend running on http://localhost:{PORT}")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("\nShutting down server.")
+    # Local execution
+    app.run(host='0.0.0.0', port=8000, debug=True)
