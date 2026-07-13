@@ -3,8 +3,10 @@ import os
 import sqlite3
 import hashlib
 
-app = Flask(__name__, static_folder='.', static_url_path='')
-DB_FILE = 'users.db'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_FILE = os.path.join(BASE_DIR, 'users.db')
+
+app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')
 
 # Initialize the database
 def init_db():
@@ -34,7 +36,7 @@ def init_db():
 # Serve frontend index.html on root path
 @app.route('/')
 def home():
-    return send_from_directory('.', 'index.html')
+    return send_from_directory(BASE_DIR, 'index.html')
 
 # Register endpoint
 @app.route('/api/register', methods=['POST'])
